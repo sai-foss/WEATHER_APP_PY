@@ -3,8 +3,8 @@ import json
 import reflex as rx
 
 # function we are using to create colored borders for all boxes in the app
-BORDER_GRADIENT = "linear-gradient(90deg, #62109F, #41A67E)"
-DELAYED_BORDER_GRADIENT = "linear-gradient(90deg, #FF4D4D, #FFA24D)"  # example
+BORDER_GRADIENT = "linear-gradient(90deg, #5b4e77, #55d6be)"
+DELAYED_BORDER_GRADIENT = "linear-gradient(90deg, #55d6be, #5b4e77)"  # example
 
 
 # the particles packed is being brought in via npm's CDN
@@ -103,9 +103,9 @@ def gradient_border_card(*children: rx.Component, **props) -> rx.Component:
 def airports_card() -> rx.Component:
     return gradient_border_card(
         rx.vstack(
-            rx.heading("ORIGIN AIRPORT", size="6", weight="bold"),
+            rx.heading("Origin Airport", size="6"),
             rx.input(
-                placeholder="e.g., SFO",
+                placeholder="e.g., LAX",
                 value=RouteState.source_airport,
                 on_change=RouteState.set_source_airport,
                 width="100%",
@@ -113,9 +113,9 @@ def airports_card() -> rx.Component:
                 font_size="1.1rem",
             ),
             rx.box(height="0.75rem"),
-            rx.heading("DESTINATION AIRPORT", size="6", weight="bold"),
+            rx.heading("Destination Airport", size="6"),
             rx.input(
-                placeholder="e.g., JFK",
+                placeholder="e.g., DFW",
                 value=RouteState.dest_airport,
                 on_change=RouteState.set_dest_airport,
                 width="100%",
@@ -133,7 +133,11 @@ def airports_card() -> rx.Component:
 def time_horizon_card() -> rx.Component:
     return gradient_border_card(
         rx.vstack(
-            rx.heading("TIME HORIZON", size="6", weight="bold"),
+            rx.heading(
+                "Time Horizon",
+                size="6",
+                text_align="center",
+            ),
             rx.flex(
                 *[
                     rx.button(
@@ -150,13 +154,16 @@ def time_horizon_card() -> rx.Component:
                     )
                     for months, label in HORIZON_PRESETS
                 ],
-                gap="0.8rem",
+                gap="0.8rem",  # reduces the gap between the times (1M, 3M, 6M ...)
                 flex_wrap="wrap",
+                justify="center",
+                align="center",
+                width="100%",
             ),
             # analyze button
             rx.box(height="1rem"),
             rx.button(
-                rx.heading("ANALYZE", size="6"),
+                rx.heading("Analyze", size="6"),
                 on_click=RouteState.analyze,  # add this handler in RouteState
                 variant="solid",
                 border_radius="9999px",
@@ -176,13 +183,14 @@ def time_horizon_card() -> rx.Component:
 def top_cards() -> rx.Component:
     return rx.flex(
         delayed_gradient_border_card(
-            rx.heading("Delayed flight?", size="8", weight="bold"),
+            rx.heading("Delayed flight?", size="8"),
             width=rx.breakpoints(initial="100%", md="calc(50% - 0.5rem)"),
             text_align="center",
         ),
         gradient_border_card(
-            rx.text(
-                "Check route metrics and our predictions", size="6", weight="medium"
+            rx.heading(
+                "Check route metrics and our predictions",
+                size="6",
             ),
             width=rx.breakpoints(initial="100%", md="calc(50% - 0.5rem)"),
             text_align="center",
@@ -192,7 +200,7 @@ def top_cards() -> rx.Component:
         width="100%",
         max_width="72rem",
         margin_x="auto",
-        gap="1rem",  # gonna try to reduce spacing between the times
+        gap="1rem",
         flex_wrap="wrap",
         align="stretch",
         justify="center",
