@@ -154,11 +154,9 @@ def time_horizon_card() -> rx.Component:
                     )
                     for months, label in HORIZON_PRESETS
                 ],
-                gap="0.8rem",  # reduces the gap between the times (1M, 3M, 6M ...)
+                gap="1rem",  # reduces the gap between the times (1M, 3M, 6M ...)
                 flex_wrap="wrap",
                 justify="center",
-                align="center",
-                width="100%",
             ),
             # analyze button
             rx.box(height="1rem"),
