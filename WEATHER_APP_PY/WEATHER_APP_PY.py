@@ -2,8 +2,12 @@ import json
 
 import reflex as rx
 
+# function we are using to create colored borders for all boxes in the app
 BORDER_GRADIENT = "linear-gradient(90deg, #62109F, #41A67E)"
+DELAYED_BORDER_GRADIENT = "linear-gradient(90deg, #FF4D4D, #FFA24D)"  # example
 
+
+# the particles packed is being brought in via npm's CDN
 PARTICLES_CDN = "https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"
 
 PARTICLES_CONFIG = {
@@ -36,7 +40,7 @@ PARTICLES_CONFIG = {
 class RouteState(rx.State):
     source_airport: str = ""
     dest_airport: str = ""
-    months_back: int = 12
+    months_back: int = 3
 
     def set_source_airport(self, value: str):
         self.source_airport = (value or "").upper().strip()
@@ -49,7 +53,12 @@ class RouteState(rx.State):
             v = int(value)
         except (TypeError, ValueError):
             return
+
         self.months_back = max(1, v)
+
+    # method to trigger analysis pipeline here, its empty for now
+    def analyze(self):
+        pass
 
 
 HORIZON_PRESETS = [
@@ -58,9 +67,25 @@ HORIZON_PRESETS = [
     (6, "6M"),
     (12, "1Y"),
     (24, "2Y"),
+    # have had to hardcode 96 here as the extent of the dataset (will have 96 months available soon,)
+    # otherwise its 90 as the dataset only has until half of this year
+    (96, "MAX"),
 ]
 
 
+def delayed_gradient_border_card(*children: rx.Component, **props) -> rx.Component:
+    bg = rx.color("gray", 2)
+    return rx.box(
+        *children,
+        border="2px solid transparent",
+        background=f"linear-gradient({bg}, {bg}) padding-box, {DELAYED_BORDER_GRADIENT} border-box",
+        border_radius="14px",
+        padding="1.25rem",
+        **props,
+    )
+
+
+# function to draw the gradient border on all the top level box then have child boxes inherit that
 def gradient_border_card(*children: rx.Component, **props) -> rx.Component:
     bg = rx.color("gray", 2)
     return rx.box(
@@ -74,10 +99,11 @@ def gradient_border_card(*children: rx.Component, **props) -> rx.Component:
     )
 
 
+# function to draw the airport card
 def airports_card() -> rx.Component:
     return gradient_border_card(
         rx.vstack(
-            rx.heading("ORIGIN AIRPORT", size="7", weight="bold"),
+            rx.heading("ORIGIN AIRPORT", size="6", weight="bold"),
             rx.input(
                 placeholder="e.g., SFO",
                 value=RouteState.source_airport,
@@ -87,7 +113,7 @@ def airports_card() -> rx.Component:
                 font_size="1.1rem",
             ),
             rx.box(height="0.75rem"),
-            rx.heading("DESTINATION AIRPORT", size="7", weight="bold"),
+            rx.heading("DESTINATION AIRPORT", size="6", weight="bold"),
             rx.input(
                 placeholder="e.g., JFK",
                 value=RouteState.dest_airport,
@@ -103,10 +129,11 @@ def airports_card() -> rx.Component:
     )
 
 
+# function to draw the time horizon card
 def time_horizon_card() -> rx.Component:
     return gradient_border_card(
         rx.vstack(
-            rx.heading("TIME HORIZON", size="7", weight="bold"),
+            rx.heading("TIME HORIZON", size="6", weight="bold"),
             rx.flex(
                 *[
                     rx.button(
@@ -123,33 +150,32 @@ def time_horizon_card() -> rx.Component:
                     )
                     for months, label in HORIZON_PRESETS
                 ],
-                gap="1rem",
+                gap="0.8rem",
                 flex_wrap="wrap",
             ),
-            rx.hstack(
-                rx.text("Months back", size="4", weight="medium"),
-                rx.input(
-                    type="number",
-                    min="1",
-                    step="1",
-                    value=RouteState.months_back,
-                    on_change=RouteState.set_months_back,
-                    width="8rem",
-                    height="2.5rem",
-                ),
+            # analyze button
+            rx.box(height="1rem"),
+            rx.button(
+                rx.heading("ANALYZE", size="6"),
+                on_click=RouteState.analyze,  # add this handler in RouteState
+                variant="solid",
+                border_radius="9999px",
+                height="2.5rem",
+                padding_x="1.25rem",
                 spacing="3",
-                align="center",
+                align="stretch",
             ),
-            spacing="4",
+            spacing="3",
             align="stretch",
         ),
         width=rx.breakpoints(initial="100%", md="calc(50% - 0.5rem)"),
     )
 
 
+# first 2 cards the introduction type
 def top_cards() -> rx.Component:
     return rx.flex(
-        gradient_border_card(
+        delayed_gradient_border_card(
             rx.heading("Delayed flight?", size="8", weight="bold"),
             width=rx.breakpoints(initial="100%", md="calc(50% - 0.5rem)"),
             text_align="center",
@@ -166,13 +192,14 @@ def top_cards() -> rx.Component:
         width="100%",
         max_width="72rem",
         margin_x="auto",
-        gap="1rem",
+        gap="1rem",  # gonna try to reduce spacing between the times
         flex_wrap="wrap",
         align="stretch",
         justify="center",
     )
 
 
+# render the particles
 def particles_background() -> rx.Component:
     cfg = json.dumps(PARTICLES_CONFIG)
 
