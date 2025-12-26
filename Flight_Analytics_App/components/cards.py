@@ -5,20 +5,27 @@ from ..state import RouteState
 from .gradients import delayed_gradient_border_card, gradient_border_card
 
 
-# first 2 cards the introduction type
-def top_cards() -> rx.Component:
+# display all our "cards"
+# returns an rx component -> flex which contains the 4 cards (+ their border components)
+# This finally gets passed into page_shell function (the background function) right before
+# getting returned into the index() to get displayed
+def all_cards() -> rx.Component:
     return rx.flex(
+        # this implementation has a downside of the borders gradients width being the controller for
+        # the cards width and breakpoints for md
+        # card to get "delayed Flight" (defined below)
         delayed_gradient_border_card(
             rx.heading("Delayed flight?", size="8"),
-            width=rx.breakpoints(initial="100%", md="calc(50% - 0.5rem)"),
+            width=rx.breakpoints(initial="100%", md="50%"),
             text_align="center",
         ),
         gradient_border_card(
+            # card to get the top right text
             rx.heading(
                 "Check route metrics and our predictions",
                 size="6",
             ),
-            width=rx.breakpoints(initial="100%", md="calc(50% - 0.5rem)"),
+            width=rx.breakpoints(initial="100%", md="50%"),
             text_align="center",
         ),
         airports_card(),

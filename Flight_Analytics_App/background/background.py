@@ -6,6 +6,7 @@ from .particles import particles_background
 
 # function to render background: particles.js + image
 def page_shell(*children: rx.Component) -> rx.Component:
+    # this function takes the cards as input to return the final display to our index page
     return rx.box(
         particles_background(),
         rx.box(

@@ -5,3 +5,4 @@ assets/external/
 *.py[cod]
 .states
 /venv/
+/Testing/
