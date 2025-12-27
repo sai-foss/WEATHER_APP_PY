@@ -2,7 +2,10 @@ import reflex as rx
 
 config = rx.Config(
     app_name="Flight_Analytics_App",
-    api_url="https://flight-analytics-app.onrender.com:8000",
+    cors_allowed_origins=[
+        "http://localhost:3000",
+        "https://flight-analytics-app.onrender.com",
+    ],
     plugins=[
         rx.plugins.SitemapPlugin(),
         rx.plugins.TailwindV4Plugin(),
