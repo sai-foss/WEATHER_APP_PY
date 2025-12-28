@@ -1,6 +1,7 @@
 import reflex as rx
+import reflex_enterprise as rxe
 
-from ..data.airport_list import AIRPORT_DATALIST_ID
+from ..data.airport_list import AIRPORT_CODES
 from ..state import RouteState
 from .gradients import delayed_gradient_border_card, gradient_border_card
 
@@ -58,29 +59,17 @@ def airports_card() -> rx.Component:
     return gradient_border_card(
         rx.vstack(
             rx.heading("Origin Airport", size="6"),
-            rx.input(
+            rxe.mantine.autocomplete(
                 placeholder="e.g., LAX",
-                value=RouteState.source_airport,
-                on_change=RouteState.set_source_airport,
-                width="100%",
-                height="3rem",
-                font_size="1.1rem",
-                max_length=3,
-                pattern="[A-Za-z]{3}",
-                list=AIRPORT_DATALIST_ID,
+                description="Select a fruit from the list",
+                data=AIRPORT_CODES,
             ),
             rx.box(height="0.75rem"),
             rx.heading("Destination Airport", size="6"),
-            rx.input(
-                placeholder="e.g., DFW",
-                value=RouteState.dest_airport,
-                on_change=RouteState.set_dest_airport,
-                width="100%",
-                height="3rem",
-                font_size="1.1rem",
-                max_length=3,
-                pattern="[A-Za-z]{3}",
-                list=AIRPORT_DATALIST_ID,
+            rxe.mantine.autocomplete(
+                placeholder="e.g., LAX",
+                description="Select an IATA airport",
+                data=AIRPORT_CODES,
             ),
             spacing="3",
             align="stretch",

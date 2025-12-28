@@ -20,7 +20,7 @@ def delayed_gradient_border_card(*children: rx.Component, **props) -> rx.Compone
     )
 
 
-# function to draw the gradient border for a card. this card is utilized for
+# function to draw the gradient border for a card. this card is utilized for the remaining cards 
 def gradient_border_card(*children: rx.Component, **props) -> rx.Component:
     bg = rx.color("gray", 2)
     return rx.box(
