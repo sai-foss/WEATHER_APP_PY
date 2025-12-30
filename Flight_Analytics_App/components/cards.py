@@ -3,6 +3,8 @@ import reflex as rx
 from ..data.airport_list import AIRPORT_DATALIST_ID
 from ..state import RouteState
 from ..data.charts import pie_simple
+from ..data.network_graph import two_node_directed
+
 from .gradients import delayed_gradient_border_card, gradient_border_card
 
 
@@ -82,6 +84,21 @@ def airports_card() -> rx.Component:
                 pattern="[A-Za-z]{3}",
                 list=AIRPORT_DATALIST_ID,
             ),
+            rx.cond(
+                # we can literally use the same pi chart flag for the network graph
+                # we make below variable available to the method? -> might be unnecessary
+                RouteState.show_pie_flag,  # wont run while false. the analyze button makes it true in the last line after validating inputs then we can run the rendering function
+                rx.box(
+                    rx.plotly(
+                        data=two_node_directed(),
+                        config={"responsive": True},
+                        style={"width": "100%", "height": "100%"},
+                    ),
+                    width="100%",
+                    height="50%",
+                    aspect_ratio="2 / 1",  # responsive height derived from width
+                ),
+            ),
             spacing="3",
             align="stretch",
         ),
@@ -135,9 +152,7 @@ def time_horizon_card() -> rx.Component:
                 # we make below variable available to the method? -> might be unnecessary
                 RouteState.show_pie_flag,  # wont run while false. the analyze button makes it true in the last line after validating inputs then we can run the rendering function
                 pie_simple(),
-                rx.box(),
             ),
-            rx.box(height="1rem"),
             spacing="3",
             align="stretch",
         ),
