@@ -3,7 +3,7 @@ import reflex as rx
 from ..data.airport_list import AIRPORT_DATALIST_ID
 from ..state import RouteState
 from ..data.charts import pie_simple
-from ..data.network_graph import two_node_directed
+from ..data.network_graph import ab_graph_png_data_url
 
 from .gradients import delayed_gradient_border_card, gradient_border_card
 
@@ -89,14 +89,11 @@ def airports_card() -> rx.Component:
                 # we make below variable available to the method? -> might be unnecessary
                 RouteState.show_pie_flag,  # wont run while false. the analyze button makes it true in the last line after validating inputs then we can run the rendering function
                 rx.box(
-                    rx.plotly(
-                        data=two_node_directed(),
-                        config={"responsive": True},
-                        style={"width": "100%", "height": "100%"},
-                    ),
-                    width="100%",
-                    height="50%",
-                    aspect_ratio="2 / 1",  # responsive height derived from width
+                    rx.image(
+                        src=ab_graph_png_data_url(500),  # or a state var
+                        width="100%",
+                        height="auto",
+                    )
                 ),
             ),
             spacing="3",

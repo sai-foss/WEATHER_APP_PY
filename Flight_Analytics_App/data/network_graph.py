@@ -1,62 +1,78 @@
-import plotly.graph_objects as go
+import base64
+from io import BytesIO
+
+import matplotlib
+
+matplotlib.use("Agg")  # server-side
+import matplotlib.pyplot as plt
+import networkx as nx
 
 
-def two_node_directed(weight: float = 500) -> go.Figure:
-    # Positions
-    x0, y0 = 0, 0
-    x1, y1 = 10, 0
+def ab_graph_png_data_url(weight: float = 500) -> str:
+    G = nx.DiGraph()
+    G.add_edge("A", "B")
 
-    fig = go.Figure()
+    pos = {"A": (0, 0), "B": (1, 0)}  # fixed positions
 
-    # Edge (for hover)
-    fig.add_trace(
-        go.Scatter(
-            x=[x0, x1],
-            y=[y0, y1],
-            mode="lines",
-            hoverinfo="text",
-            text=[f"weight: {weight}"],
-            line=dict(width=6),
-        )
+    fig, ax = plt.subplots(figsize=(5, 2.2), dpi=160)
+    fig.patch.set_facecolor("#18191b")
+    ax.set_facecolor("black")
+    ax.axis("off")
+
+    # Nodes (labels inside nodes)
+    nx.draw_networkx_nodes(
+        G,
+        pos,
+        node_size=2200,
+        node_color="#9ec5ff",
+        ax=ax,
+    )
+    nx.draw_networkx_labels(
+        G,
+        pos,
+        labels={"A": "ONT", "B": "DFW"},
+        font_size=16,
+        font_weight="bold",
+        font_color="black",
+        ax=ax,
     )
 
-    # Nodes
-    fig.add_trace(
-        go.Scatter(
-            x=[x0, x1],
-            y=[y0, y1],
-            mode="markers+text",
-            text=["A", "B"],
-            textposition="bottom center",
-            marker=dict(size=60),
-            hoverinfo="skip",
-        )
+    # Directed edge
+    nx.draw_networkx_edges(
+        G,
+        pos,
+        ax=ax,
+        arrows=True,
+        arrowstyle="-|>",
+        arrowsize=18,
+        width=3.5,
+        edge_color="#9ec5ff",
+        min_source_margin=30,  # adhoc
+        min_target_margin=25,  # also adhoc
+        connectionstyle="arc3,rad=0.0",
     )
 
-    # Direction arrow A -> B
-    fig.add_annotation(
-        x=x1,
-        y=y1,
-        ax=x0,
-        ay=y0,
-        xref="x",
-        yref="y",
-        axref="x",
-        ayref="y",
-        showarrow=True,
-        arrowhead=3,
-        arrowsize=1.2,
-        arrowwidth=4,
-        text="",
+    # Weight label on edge
+    nx.draw_networkx_edge_labels(
+        G,
+        pos,
+        edge_labels={("A", "B"): str(weight)},
+        font_color="white",
+        font_size=20,
+        bbox=dict(boxstyle="round,pad=0.2", fc="#18191b", ec="none"),
+        ax=ax,
     )
 
-    # Weight label near midpoint
-    fig.add_annotation(x=(x0 + x1) / 2, y=y0 + 0.6, text=str(weight), showarrow=False)
-
-    fig.update_layout(
-        showlegend=False,
-        margin=dict(l=10, r=10, t=10, b=10),
-        xaxis=dict(visible=False, range=[-2, 12]),
-        yaxis=dict(visible=False, range=[-3, 3], scaleanchor="x", scaleratio=1),
+    buf = BytesIO()
+    plt.tight_layout(pad=0)
+    fig.savefig(
+        buf,
+        format="png",
+        bbox_inches="tight",
+        pad_inches=0.05,
+        facecolor=fig.get_facecolor(),
     )
-    return fig
+    plt.close(fig)
+
+    b64 = base64.b64encode(buf.getvalue()).decode("ascii")
+    return f"data:image/png;base64,{b64}"
