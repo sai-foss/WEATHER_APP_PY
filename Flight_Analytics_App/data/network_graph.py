@@ -18,6 +18,12 @@ def ab_graph_png_data_url(weight: float = 500) -> str:
     fig.patch.set_facecolor("#18191b")
     ax.set_facecolor("black")
     ax.axis("off")
+    ax.set_title(
+        "Total Scheduled flights",
+        color="white",
+        fontsize=18,
+        pad=10,
+    )
 
     # Nodes (labels inside nodes)
     nx.draw_networkx_nodes(

@@ -1,8 +1,8 @@
+from typing import Self
 import reflex as rx
 
 from ..data.airport_list import AIRPORT_DATALIST_ID
 from ..state import RouteState
-from ..data.charts import pie_simple
 from ..data.network_graph import ab_graph_png_data_url
 
 from .gradients import delayed_gradient_border_card, gradient_border_card
@@ -86,11 +86,10 @@ def airports_card() -> rx.Component:
             ),
             rx.cond(
                 # we can literally use the same pi chart flag for the network graph
-                # we make below variable available to the method? -> might be unnecessary
                 RouteState.show_pie_flag,  # wont run while false. the analyze button makes it true in the last line after validating inputs then we can run the rendering function
                 rx.box(
                     rx.image(
-                        src=ab_graph_png_data_url(500),  # or a state var
+                        src=RouteState.network_graph_src,  # weight of the edge in the network graph
                         width="100%",
                         height="auto",
                     )
@@ -148,7 +147,18 @@ def time_horizon_card() -> rx.Component:
             rx.cond(
                 # we make below variable available to the method? -> might be unnecessary
                 RouteState.show_pie_flag,  # wont run while false. the analyze button makes it true in the last line after validating inputs then we can run the rendering function
-                pie_simple(),
+                rx.recharts.pie_chart(
+                    rx.recharts.pie(
+                        data=RouteState.pie_data,
+                        data_key="value",
+                        name_key="name",
+                        fill="#8884d8",
+                        label=True,
+                    ),
+                    rx.recharts.legend(),
+                    width="100%",
+                    height=300,
+                ),
             ),
             spacing="3",
             align="stretch",

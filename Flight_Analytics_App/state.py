@@ -1,4 +1,12 @@
 import reflex as rx
+import duckdb as ddb
+from .data.network_graph import ab_graph_png_data_url  # the network graph func
+from .data.database import (
+    route_query_scheduled,
+    route_query_delayed,
+    route_query_weather_delayed,
+    route_query_cancelled,
+)
 
 
 from .data.airport_list import AIRPORT_CODE_SET
@@ -9,7 +17,13 @@ class RouteState(rx.State):
     dest_airport: str = ""
     months_back: int = 3
 
+    pie_data: list[dict] = []  # the pie data
+    network_graph_weight: int = 0  # the initial weight of the edge in the network graph
     show_pie_flag: bool = False  # flag to wait on pie
+
+    @rx.var
+    def network_graph_src(self) -> str:
+        return ab_graph_png_data_url(self.network_graph_weight)
 
     # event to make the chart un-render on page reload
     # we can keep adding new charts to turn off here on reload
@@ -17,6 +31,7 @@ class RouteState(rx.State):
     def on_page_load(self):
         self.show_pie_flag = False
         # more charts to un-render
+        self.pie_data = []
 
     @rx.event
     def show_pie_chart_func(self):
@@ -87,4 +102,63 @@ class RouteState(rx.State):
 
         yield rx.toast.success("Generating Graphs")
 
-        yield RouteState.show_pie_chart_func()
+        # pi chart data starting here
+
+        # paths
+        cloud_path = "/var/data/combinedv2.parquet"
+        local_path = "/home/sai/Downloads/combinedv2.parquet"
+
+        self.pie_data = [
+            {
+                "name": "Total Delayed",
+                "value": route_query_delayed(
+                    ddb=ddb,
+                    parquet_path=cloud_path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
+                    month_count=str(
+                        self.months_back
+                    ),  # for cloud path use "/var/data/combinedv2.parquet"
+                    source_airport=self.source_airport,  # prefer absolute paths for ease of use when hardcoding
+                    dest_airport=self.dest_airport,
+                ),
+                "fill": "#3e63dd",
+            },
+            {
+                "name": "Weather Delayed",
+                "value": route_query_weather_delayed(
+                    ddb=ddb,
+                    parquet_path=cloud_path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
+                    month_count=str(
+                        self.months_back
+                    ),  # for cloud path use "/var/data/combinedv2.parquet"
+                    source_airport=self.source_airport,  # prefer absolute paths for ease of use when hardcoding
+                    dest_airport=self.dest_airport,
+                ),
+                "fill": "yellow",
+            },
+            {
+                "name": "Cancelled",
+                "value": route_query_cancelled(
+                    ddb=ddb,
+                    parquet_path=cloud_path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
+                    month_count=str(
+                        self.months_back
+                    ),  # for cloud path use "/var/data/combinedv2.parquet"
+                    source_airport=self.source_airport,  # prefer absolute paths for ease of use when hardcoding
+                    dest_airport=self.dest_airport,
+                ),
+                "fill": "red",
+            },
+        ]
+
+        # putting this in the network graph
+        self.network_graph_weight = route_query_scheduled(
+            ddb=ddb,
+            parquet_path=cloud_path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
+            month_count=str(
+                self.months_back
+            ),  # for cloud path use "/var/data/combinedv2.parquet"
+            source_airport=self.source_airport,  # prefer absolute paths for ease of use when hardcoding
+            dest_airport=self.dest_airport,
+        )
+
+        yield self.show_pie_chart_func()

@@ -1,123 +1,120 @@
 import duckdb as ddb
 
 
-def route_query_scheduled(
-    ddb,
-    parquet_path: str,
-    source_airport: str,
-    dest_airport: str,
-    month: str,
-):  # dataset is between Jan 2018 to June 2025
-    # dataset location https://www.kaggle.com/datasets/saibeerao/us-domestic-passenger-flight-delays-bts-otp?select=combinedv2.parquet
+# scheduled - all count of the route
+def route_query_scheduled(ddb, parquet_path, month_count, source_airport, dest_airport):
 
-    if month == 1:
-        month = "BETWEEN '2025-06-01' AND '2025-06-30'"
-
-    if month == 3:
-        month = "BETWEEN '2025-04-01' AND '2025-06-30'"
-
-    if month == 6:
-        month = "BETWEEN '2025-01-01' AND '2025-06-30'"
-
-    if month == 12:
-        month = "BETWEEN '2024-06-30' AND '2025-06-30'"
-
-    if month == 24:
-        month = "BETWEEN '2023-06-30' AND '2025-06-30'"
-
-    if month == 90:
-        month = "BETWEEN '2018-01-01' AND '2025-06-30'"
+    if month_count == "1":  # also consider in the logic that mount count = start month
+        month_count = "2025-06-01"
+    elif month_count == "3":
+        month_count = "2025-04-01"
+    elif month_count == "6":
+        month_count = "2025-01-01"
+    elif month_count == "12":
+        month_count = "2024-06-30"
+    elif month_count == "24":
+        month_count = "2023-06-30"
+    elif month_count == "90":  # max
+        month_count = "2018-01-01"
 
     sql = """
-    SELECT count(*) AS n
+    SELECT count(*) AS route_count
     FROM read_parquet(?)
-    WHERE flight_date = ?
+    WHERE flight_date BETWEEN CAST(? AS DATE) AND '2025-06-30'  -- remember we are hardcoding the end_date (dataset limit)
       AND ORIGIN = ?
       AND DEST = ?
     """
     return ddb.execute(
-        sql, [parquet_path, month, source_airport, dest_airport]
+        sql, [parquet_path, month_count, source_airport, dest_airport]
     ).fetchone()[0]
 
 
-def route_query_delayed(
-    # count of delayed
-    ddb,
-    parquet_path: str,
-    source_airport: str,
-    dest_airport: str,
-    month: str,
-):  # dataset is between Jan 2018 to June 2025
-    # dataset location https://www.kaggle.com/datasets/saibeerao/us-domestic-passenger-flight-delays-bts-otp?select=combinedv2.parquet
+# if any of the routes were cancelled
+def route_query_cancelled(ddb, parquet_path, month_count, source_airport, dest_airport):
 
-    if month == 1:
-        month = "BETWEEN '2025-06-01' AND '2025-06-30'"
-
-    if month == 3:
-        month = "BETWEEN '2025-04-01' AND '2025-06-30'"
-
-    if month == 6:
-        month = "BETWEEN '2025-01-01' AND '2025-06-30'"
-
-    if month == 12:
-        month = "BETWEEN '2024-06-30' AND '2025-06-30'"
-
-    if month == 24:
-        month = "BETWEEN '2023-06-30' AND '2025-06-30'"
-
-    if month == 90:
-        month = "BETWEEN '2018-01-01' AND '2025-06-30'"
+    if month_count == "1":  # also consider in the logic that mount count = start month
+        month_count = "2025-06-01"
+    elif month_count == "3":
+        month_count = "2025-04-01"
+    elif month_count == "6":
+        month_count = "2025-01-01"
+    elif month_count == "12":
+        month_count = "2024-06-30"
+    elif month_count == "24":
+        month_count = "2023-06-30"
+    elif month_count == "90":  # max
+        month_count = "2018-01-01"
 
     sql = """
-    SELECT count(*) AS n
+    SELECT count(*) AS route_count
     FROM read_parquet(?)
-    WHERE flight_date = ?
-      AND ORIGIN = ?
-      AND DEST = ?
-      AND ARR_DELAY > 15
-      AND CANCELLED != 1
-    """
-    return ddb.execute(
-        sql, [parquet_path, month, source_airport, dest_airport]
-    ).fetchone()[0]
-
-
-def route_query_cancelled(
-    # count of cancelled
-    ddb,
-    parquet_path: str,
-    source_airport: str,
-    dest_airport: str,
-    month: str,
-):  # dataset is between Jan 2018 to June 2025
-    # dataset location https://www.kaggle.com/datasets/saibeerao/us-domestic-passenger-flight-delays-bts-otp?select=combinedv2.parquet
-
-    if month == 1:
-        month = "BETWEEN '2025-06-01' AND '2025-06-30'"
-
-    if month == 3:
-        month = "BETWEEN '2025-04-01' AND '2025-06-30'"
-
-    if month == 6:
-        month = "BETWEEN '2025-01-01' AND '2025-06-30'"
-
-    if month == 12:
-        month = "BETWEEN '2024-06-30' AND '2025-06-30'"
-
-    if month == 24:
-        month = "BETWEEN '2023-06-30' AND '2025-06-30'"
-
-    if month == 90:
-        month = "BETWEEN '2018-01-01' AND '2025-06-30'"
-
-    sql = """
-    SELECT count(*) AS n
-    FROM read_parquet(?)
-    WHERE flight_date = ?
+    WHERE flight_date BETWEEN CAST(? AS DATE) AND '2025-06-30'  -- remember we are hardcoding the end_date (dataset limit)
       AND ORIGIN = ?
       AND DEST = ?
       AND CANCELLED = 1
     """
     return ddb.execute(
-        sql, [parquet_path, month, source_airport, dest_airport]
+        sql, [parquet_path, month_count, source_airport, dest_airport]
+    ).fetchone()[0]
+
+
+# just straight up delayed routes
+def route_query_delayed(ddb, parquet_path, month_count, source_airport, dest_airport):
+
+    if month_count == "1":  # also consider in the logic that mount count = start month
+        month_count = "2025-06-01"
+    elif month_count == "3":
+        month_count = "2025-04-01"
+    elif month_count == "6":
+        month_count = "2025-01-01"
+    elif month_count == "12":
+        month_count = "2024-06-30"
+    elif month_count == "24":
+        month_count = "2023-06-30"
+    elif month_count == "90":  # max
+        month_count = "2018-01-01"
+
+    sql = """
+    SELECT count(*) AS route_count
+    FROM read_parquet(?)
+    WHERE flight_date BETWEEN CAST(? AS DATE) AND '2025-06-30'  -- remember we are hardcoding the end_date (dataset limit)
+      AND ORIGIN = ?
+      AND DEST = ?
+      AND CANCELLED = 0
+      AND ARR_DELAY > 15
+    """
+    return ddb.execute(
+        sql, [parquet_path, month_count, source_airport, dest_airport]
+    ).fetchone()[0]
+
+
+# delayed over 15min due to weather
+def route_query_weather_delayed(
+    ddb, parquet_path, month_count, source_airport, dest_airport
+):
+
+    if month_count == "1":  # also consider in the logic that mount count = start month
+        month_count = "2025-06-01"
+    elif month_count == "3":
+        month_count = "2025-04-01"
+    elif month_count == "6":
+        month_count = "2025-01-01"
+    elif month_count == "12":
+        month_count = "2024-06-30"
+    elif month_count == "24":
+        month_count = "2023-06-30"
+    elif month_count == "90":  # max
+        month_count = "2018-01-01"
+
+    sql = """
+    SELECT count(*) AS route_count
+    FROM read_parquet(?)
+    WHERE flight_date BETWEEN CAST(? AS DATE) AND '2025-06-30'  -- remember we are hardcoding the end_date (dataset limit)
+      AND ORIGIN = ?
+      AND DEST = ?
+      AND CANCELLED = 0
+      AND WEATHER_DELAY > 15
+    """
+    return ddb.execute(
+        sql, [parquet_path, month_count, source_airport, dest_airport]
     ).fetchone()[0]
