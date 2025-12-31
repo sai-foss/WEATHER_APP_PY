@@ -44,11 +44,11 @@ def ab_graph_png_data_url(weight: float = 500) -> str:
         ax=ax,
         arrows=True,
         arrowstyle="-|>",
-        arrowsize=18,
+        arrowsize=25,
         width=3.5,
         edge_color="#9ec5ff",
-        min_source_margin=30,  # adhoc
-        min_target_margin=25,  # also adhoc
+        min_source_margin=27,  # adhoc
+        min_target_margin=23,  # also adhoc
         connectionstyle="arc3,rad=0.0",
     )
 
