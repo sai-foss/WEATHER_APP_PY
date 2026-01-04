@@ -5,7 +5,7 @@ config = rx.Config(
     cors_allowed_origins=[
         "http://localhost:3000",
         "https://flight-analytics-app.onrender.com",
-        "https://flight-analytics-app.sudosai.com/",
+        "https://flight-analytics-app.sudosai.com",
     ],
     plugins=[
         rx.plugins.SitemapPlugin(),
