@@ -1,5 +1,8 @@
 import reflex as rx
 import duckdb as ddb
+from pathlib import Path
+
+from sqlalchemy import exists
 from .data.network_graph import ab_graph_png_data_url  # the network graph func
 from .data.database import (
     route_query_scheduled,  # used for network graph
@@ -8,7 +11,6 @@ from .data.database import (
     delayed_count,
     diverted_count,
 )
-import getpass
 
 
 from .data.airport_list import AIRPORT_CODE_SET
@@ -111,13 +113,15 @@ class RouteState(rx.State):
         # pi chart data starting here
 
         # paths
-        cloud_path = "/var/data/combinedv2.parquet"
-        local_path = "/home/sai/Downloads/combinedv2.parquet"
+        cloud_path = Path("/var/data/combinedv2.parquet")
+        local_path = Path("/home/sai/Downloads/combinedv2.parquet")
         path = ""
-        if getpass.getuser() == "sai":
+        if local_path.exists() == True:
             path = local_path
-        else:
+        elif cloud_path.exists() == True:
             path = cloud_path
+        else:
+            print("Please set the correct path for your parquet dataset")
 
         # computing this outside so we can reuse it
         on_time_count_var = on_time_count(
