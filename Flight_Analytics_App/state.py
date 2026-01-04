@@ -2,7 +2,6 @@ import reflex as rx
 import duckdb as ddb
 from pathlib import Path
 
-from sqlalchemy import exists
 from .data.network_graph import ab_graph_png_data_url  # the network graph func
 from .data.database import (
     route_query_scheduled,  # used for network graph
@@ -117,9 +116,9 @@ class RouteState(rx.State):
         local_path = Path("/home/sai/Downloads/combinedv2.parquet")
         path = ""
         if local_path.exists() == True:
-            path = local_path
+            path = str(local_path)
         elif cloud_path.exists() == True:
-            path = cloud_path
+            path = str(cloud_path)
         else:
             print("Please set the correct path for your parquet dataset")
 
