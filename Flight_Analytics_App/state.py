@@ -8,7 +8,7 @@ from .data.database import (
     delayed_count,
     diverted_count,
 )
-from pathlib import Path
+import getpass
 
 
 from .data.airport_list import AIRPORT_CODE_SET
@@ -113,11 +113,16 @@ class RouteState(rx.State):
         # paths
         cloud_path = "/var/data/combinedv2.parquet"
         local_path = "/home/sai/Downloads/combinedv2.parquet"
+        path = ""
+        if getpass.getuser() == "sai":
+            path = local_path
+        elif getpass.getpass() == "render":
+            path = cloud_path
 
         # computing this outside so we can reuse it
         on_time_count_var = on_time_count(
             ddb=ddb,
-            parquet_path=cloud_path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
+            parquet_path=path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
             month_count=str(
                 self.months_back
             ),  # for cloud path use "/var/data/combinedv2.parquet"
@@ -127,7 +132,7 @@ class RouteState(rx.State):
 
         cancelled_count_var = cancelled_count(
             ddb=ddb,
-            parquet_path=cloud_path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
+            parquet_path=path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
             month_count=str(
                 self.months_back
             ),  # for cloud path use "/var/data/combinedv2.parquet"
@@ -137,7 +142,7 @@ class RouteState(rx.State):
 
         delayed_count_var = delayed_count(
             ddb=ddb,
-            parquet_path=cloud_path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
+            parquet_path=path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
             month_count=str(
                 self.months_back
             ),  # for cloud path use "/var/data/combinedv2.parquet"
@@ -147,7 +152,7 @@ class RouteState(rx.State):
 
         diverted_count_var = diverted_count(
             ddb=ddb,
-            parquet_path=cloud_path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
+            parquet_path=path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
             month_count=str(
                 self.months_back
             ),  # for cloud path use "/var/data/combinedv2.parquet"
@@ -182,7 +187,7 @@ class RouteState(rx.State):
         # putting this in the network graph
         self.network_graph_weight = route_query_scheduled(
             ddb=ddb,
-            parquet_path=cloud_path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
+            parquet_path=path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
             month_count=str(
                 self.months_back
             ),  # for cloud path use "/var/data/combinedv2.parquet"
