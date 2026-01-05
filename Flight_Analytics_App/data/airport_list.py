@@ -404,6 +404,7 @@ AIRPORT_CODE_SET = set(AIRPORT_CODES)
 AIRPORT_DATALIST_ID = "airport-codes"
 
 
+# a way to pass the list into a reflex component so we can provide each element as an input
 def airport_datalist() -> rx.Component:
     return rx.el.datalist(
         *[rx.el.option(value=code) for code in AIRPORT_CODES],
