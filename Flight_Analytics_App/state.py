@@ -286,7 +286,7 @@ class RouteState(rx.State):
             self.network_graph_weight,
             on_time_count_var,
             delayed_count_var,
-            delayed_count_var,
+            cancelled_count_var,
             diverted_count_var,
         )
 
