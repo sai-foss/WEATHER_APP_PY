@@ -52,6 +52,7 @@ class RouteState(rx.State):
         self.months_back = max(1, int(months))
 
     # this method isn't an event so don't use the event decorator
+    # removes whitespaces and make input upper case only
     def _norm_code(self, value: str) -> str:
         v = (value or "").upper().strip()
         return v[:3]

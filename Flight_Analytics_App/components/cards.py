@@ -53,7 +53,7 @@ def tip_button(
                 side="top",
                 align="center",
                 padding="1rem",
-                style={"max_width": "25rem"},
+                style={"max_width": "20rem"},
             ),
         ),
         display=rx.breakpoints(initial="block", md="none"),
@@ -79,7 +79,7 @@ def all_cards() -> rx.Component:
         gradient_border_card(
             # card to get the top right text
             rx.heading(
-                "Check route metrics and weather information",
+                "Check route metrics (USA Domestic Flights only)",
                 size="6",
             ),
             width=rx.breakpoints(initial="100%", md="50%"),
