@@ -7,13 +7,12 @@ from .gradients import delayed_gradient_border_card, gradient_border_card
 
 
 # tooltip for mobile
-from reflex.components.radix.themes.base import LiteralAccentColor
 
 
 def tip_button(
     label: str,
     content: str,
-    color: LiteralAccentColor = "blue",
+    color: str = "blue",
     variant: str = "soft",
 ) -> rx.Component:
     def make_btn():
@@ -179,8 +178,8 @@ def airports_card() -> rx.Component:
                                     rx.hstack(
                                         tip_button(
                                             RouteState.source_fltCat,
-                                            "Origin METAR flight category",
-                                            "blue",
+                                            RouteState.source_weather_explanation,
+                                            RouteState.source_card_color,  # keep an eye on the color it might work (yet)
                                         ),
                                         rx.icon(tag="pointer"),
                                     ),
@@ -188,8 +187,21 @@ def airports_card() -> rx.Component:
                                     align="center",
                                     justify="between",
                                 ),
-                                rx.card(
-                                    rx.text(RouteState.dest_airport),
+                                rx.hstack(
+                                    rx.card(
+                                        rx.text(RouteState.dest_airport),
+                                    ),
+                                    rx.hstack(
+                                        tip_button(
+                                            RouteState.dest_fltCat,
+                                            RouteState.dest_weather_explanation,
+                                            RouteState.dest_card_color,
+                                        ),
+                                        rx.icon(tag="pointer"),
+                                    ),
+                                    width="100%",
+                                    align="center",
+                                    justify="between",
                                 ),
                                 spacing="3",
                                 width="100%",

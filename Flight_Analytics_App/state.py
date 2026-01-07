@@ -80,6 +80,10 @@ class RouteState(rx.State):
 
     source_fltCat = ""
     dest_fltCat = ""
+    source_weather_explanation = ""
+    source_card_color = ""
+    dest_weather_explanation = ""
+    dest_card_color = ""
 
     # METAR get current weather data -> put here due to circular import issue
 
@@ -108,6 +112,61 @@ class RouteState(rx.State):
             (origin_status[0]["fltCat"]),
             (dest_status[0]["fltCat"]),
         )
+
+    # function to convert colors and explanation
+    # same if statements for both fltCats for the tooltip
+
+    def get_popup_explanation_and_color(self):
+
+        if self.source_fltCat == "VFR":
+            self.source_weather_explanation = "GOOD: Visibility is generally clear and low clouds are not expected to be a problem."
+            self.source_card_color = "green"
+
+        elif self.source_fltCat == "MVFR":
+            self.source_weather_explanation = "CAUTION: Visibility and/or low clouds may start to cause minor limitations or delays."
+            self.source_card_color = "gold"
+
+        elif self.source_fltCat == "IFR":
+            self.source_weather_explanation = "POOR: Visibility and/or low clouds are likely to cause disruptions and require extra caution."
+            self.source_card_color = "orange"
+
+        elif self.source_fltCat == "LIFR":
+            self.source_weather_explanation = "VERY POOR: Visibility and/or low clouds are very limited, and significant impacts are likely."
+            self.source_card_color = "red"
+
+        elif self.source_fltCat == "VLIFR":
+            self.source_weather_explanation = "EXTREME: Conditions are extremely limited and this is the most restrictive category on this scale."
+            self.source_card_color = "purple"
+
+        else:
+            self.source_weather_explanation = "Unknown category."
+            self.source_card_color = "gray"
+
+        # for destination if statements
+
+        if self.dest_fltCat == "VFR":
+            self.dest_weather_explanation = "GOOD: Visibility is generally clear and low clouds are not expected to be a problem."
+            self.dest_card_color = "green"
+
+        elif self.dest_fltCat == "MVFR":
+            self.dest_weather_explanation = "CAUTION: Visibility and/or low clouds may start to cause minor limitations or delays."
+            self.dest_card_color = "gold"
+
+        elif self.dest_fltCat == "IFR":
+            self.dest_weather_explanation = "POOR: Visibility and/or low clouds are likely to cause disruptions and require extra caution."
+            self.dest_card_color = "orange"
+
+        elif self.dest_fltCat == "LIFR":
+            self.dest_weather_explanation = "VERY POOR: Visibility and/or low clouds are very limited, and significant impacts are likely."
+            self.dest_card_color = "red"
+
+        elif self.dest_fltCat == "VLIFR":
+            self.dest_weather_explanation = "EXTREME: Conditions are extremely limited and this is the most restrictive category on this scale."
+            self.dest_card_color = "purple"
+
+        else:
+            self.dest_weather_explanation = "Unknown category."
+            self.dest_card_color = "gray"
 
     @rx.event
     def analyze(self):
@@ -249,4 +308,7 @@ class RouteState(rx.State):
         yield self.show_pie_chart_func()
 
         self.source_fltCat, self.dest_fltCat = self.current_weather_status()
+
+        self.get_popup_explanation_and_color()
+
         ### TO DO: MAKE WEATHER FETCH -> ASYNC I JUST PUT A 5s TIMEOUT + its the last thing that gets populated
