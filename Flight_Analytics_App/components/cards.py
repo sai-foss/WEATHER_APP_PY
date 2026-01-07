@@ -78,9 +78,16 @@ def all_cards() -> rx.Component:
         ),
         gradient_border_card(
             # card to get the top right text
-            rx.heading(
-                "Check route metrics (USA Domestic Flights only)",
-                size="6",
+            rx.hstack(
+                rx.heading(
+                    "Check route metrics (USA Domestic Flights only)",
+                    size="6",
+                ),
+                rx.link(
+                    rx.icon(tag="github"),
+                    href="https://github.com/sai-foss/Flight_Analytics_App",
+                    is_external=True,  # opens in new tab
+                ),
             ),
             width=rx.breakpoints(initial="100%", md="50%"),
             text_align="center",
